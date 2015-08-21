@@ -63,10 +63,10 @@ import UIKit
     /** Array of UIBarButtonItem's that will be placed on right side of UIToolbar. By default it has only 'Done' bytton. */
     public var rightButtons: [UIBarButtonItem] = []
     
-    // Privates
+    // Make public
     
-    private var toolbar: UIToolbar = UIToolbar()
-    private var picker: UIDatePicker = UIDatePicker()
+    public var toolbar: UIToolbar = UIToolbar()
+    public var picker: UIDatePicker = UIDatePicker()
     
     // MARK: Lifecycle
     
