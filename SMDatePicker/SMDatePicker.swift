@@ -63,10 +63,10 @@ import UIKit
     /** Array of UIBarButtonItem's that will be placed on right side of UIToolbar. By default it has only 'Done' bytton. */
     public var rightButtons: [UIBarButtonItem] = []
     
-    // Privates
+    // Make public
     
-    private var toolbar: UIToolbar = UIToolbar()
-    private var picker: UIDatePicker = UIDatePicker()
+    public var toolbar = BorderToolBar()
+    public var picker: UIDatePicker = UIDatePicker()
     
     // MARK: Lifecycle
     
@@ -79,26 +79,23 @@ import UIKit
         setupDefaultButtons()
         customize()
     }
+  required public init?(coder aDecoder: NSCoder) {
+    super.init(coder: aDecoder)
+    addSubview(picker)
+    addSubview(toolbar)
+    setupDefaultButtons()
+    customize()
+  }
 
-    required public init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        
-        addSubview(picker)
-        addSubview(toolbar)
-        
-        setupDefaultButtons()
-        customize()
-    }
-    
     // MARK: Customization
     
     private func setupDefaultButtons() {
-        var doneButton = UIBarButtonItem(title: "Done",
+        let doneButton = UIBarButtonItem(title: "Done",
             style: UIBarButtonItemStyle.Plain,
             target: self,
             action: Selector("pressedDone:"))
 
-        var cancelButton = UIBarButtonItem(title: "Cancel",
+        let cancelButton = UIBarButtonItem(title: "Cancel",
             style: UIBarButtonItemStyle.Plain,
             target: self,
             action: Selector("pressedCancel:"))
@@ -134,15 +131,15 @@ import UIKit
         }
         
         if let title = toolbarTitle() {
-            var spaceLeft = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
-            var spaceRight = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
-            var titleItem = UIBarButtonItem(customView: title)
+            let spaceLeft = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
+            let spaceRight = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
+            let titleItem = UIBarButtonItem(customView: title)
             
             items.append(spaceLeft)
             items.append(titleItem)
             items.append(spaceRight)
         } else {
-            var space = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
+            let space = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
             items.append(space)
         }
         
@@ -155,7 +152,7 @@ import UIKit
     
     private func toolbarTitle() -> UILabel? {
         if let title = title {
-            var label = UILabel()
+            let label = UILabel()
             label.text = title
             label.font = titleFont
             label.textColor = titleColor
@@ -172,8 +169,8 @@ import UIKit
     /**
     Shows picker in view with animation if it's required.
     
-    :param: view is a UIView where we want to show our picker
-    :param: animated will show with animation if it's true
+    - parameter view: is a UIView where we want to show our picker
+    - parameter animated: will show with animation if it's true
     
     */
     public func showPickerInView(view: UIView, animated: Bool) {
@@ -193,7 +190,7 @@ import UIKit
     /**
     Hide visible picker anikmated. 
 
-    :param: animated will hide with animation if `true`
+    - parameter animated: will hide with animation if `true`
     */
     public func hidePicker(animated: Bool) {
         hidePickerAnimation(true)
@@ -208,7 +205,7 @@ import UIKit
             UIView.animateWithDuration(0.2, animations: { () -> Void in
                 self.frame = CGRectOffset(self.frame, 0, self.picker.frame.size.height + self.toolbar.frame.size.height)
             }) { (finished) -> Void in
-                delegate?.datePickerDidDisappear?(self)
+                self.delegate?.datePickerDidDisappear?(self)
             }
         } else {
             self.frame = CGRectOffset(self.frame, 0, self.picker.frame.size.height + self.toolbar.frame.size.height)
@@ -222,10 +219,14 @@ import UIKit
         if animated {
             self.frame = CGRectOffset(self.frame, 0, self.frame.size.height)
             
-            UIView.animateWithDuration(0.2, animations: { () -> Void in
-                self.frame = CGRectOffset(self.frame, 0, -1 * self.frame.size.height)
-            }) { (finished) -> Void in
-                delegate?.datePickerDidAppear?(self)
+            UIView.animateWithDuration(0.2, animations: { [weak self] in
+              if let unwrappedSelf = self {
+                unwrappedSelf.frame = CGRectOffset(unwrappedSelf.frame, 0, -1 * unwrappedSelf.frame.size.height)
+              }
+            }) { [weak self] finished in
+              if let unwrappedSelf = self {
+                unwrappedSelf.delegate?.datePickerDidAppear?(unwrappedSelf)
+              }
             }
         } else {
             delegate?.datePickerDidAppear?(self)
